@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Blogy AI Blog Engine · Prompt &amp; Profit · Beta</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ═══ HEADER ═══ -->
+<header class="header">
+  <div class="header-left">
+    <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" title="Toggle navigation">☰</button>
+    <div class="header-logo" onclick="resetToHome()" title="Back to home">
+      <img src="https://www.blogy.in/favicon.svg" alt="Blogy" class="header-logo-img" />
+      <span class="header-logo-wordmark">Blogy</span>
+    </div>
+    <div class="header-divider"></div>
+    <div class="header-subtitle">AI Blog Engine · Prompt &amp; Profit</div>
+    <span class="beta-badge">BETA</span>
+  </div>
+  <div class="header-right">
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle dark / light mode">🌙</button>
+    <div class="provider-badge" id="providerBadge">
+      <span id="providerBadgeIcon"></span>
+      <span id="providerBadgeName"></span>
+    </div>
+    <div class="api-key-indicator" id="apiIndicator" title="No provider connected"></div>
+    <button class="api-key-btn" id="apiKeyBtn" onclick="openApiModal()">🔑 Connect Provider</button>
+  </div>
+</header>
+
+<!-- ═══ PROVIDER MODAL ═══ -->
+<div class="modal-overlay" id="apiModal">
+  <div class="modal-card modal-card-lg">
+    <div class="modal-title">Connect AI Provider</div>
+    <div class="modal-desc">Select your LLM provider and enter your API key. All keys are session-only — never persisted to disk or localStorage.</div>
+
+    <!-- Provider Tabs -->
+    <div class="provider-tabs" id="providerTabs">
+      <button class="provider-tab active" data-provider="anthropic" onclick="switchProvider('anthropic')">
+        <span class="provider-tab-icon">🤖</span>
+        <span class="provider-tab-name">Claude</span>
+        <span class="provider-tab-badge">⭐ Best</span>
+      </button>
+      <button class="provider-tab" data-provider="google" onclick="switchProvider('google')">
+        <span class="provider-tab-icon">✨</span>
+        <span class="provider-tab-name">Gemini</span>
+      </button>
+      <button class="provider-tab" data-provider="openai" onclick="switchProvider('openai')">
+        <span class="provider-tab-icon">💬</span>
+        <span class="provider-tab-name">ChatGPT</span>
+      </button>
+      <button class="provider-tab" data-provider="custom" onclick="switchProvider('custom')">
+        <span class="provider-tab-icon">⚙️</span>
+        <span class="provider-tab-name">Custom</span>
+      </button>
+    </div>
+
+    <!-- Anthropic Panel -->
+    <div class="provider-panel active" id="panel-anthropic">
+      <div class="provider-panel-header">
+        <span class="provider-panel-icon">🤖</span>
+        <div>
+          <div class="provider-panel-name">Anthropic Claude</div>
+          <div class="provider-panel-note">console.anthropic.com — Best structured output quality</div>
+        </div>
+      </div>
+      <div class="provider-field">
+        <label for="key-anthropic">API Key</label>
+        <input type="password" class="modal-input" id="key-anthropic" placeholder="sk-ant-api03-..." autocomplete="off" spellcheck="false" />
+      </div>
+      <div class="provider-field">
+        <label for="model-anthropic">Model</label>
+        <select class="model-select" id="model-anthropic">
+          <option value="claude-sonnet-4-20250514">Claude Sonnet 4 · Recommended</option>
+          <option value="claude-opus-4-20250514">Claude Opus 4 · Highest Quality</option>
+          <option value="claude-haiku-4-5-20251001">Claude Haiku 4.5 · Fastest</option>
+        </select>
+      </div>
+      <div class="provider-best-note">⭐ Optimised for this pipeline — delivers best structured output and SEO scorecard accuracy across all 5 stages.</div>
+    </div>
+
+    <!-- Google Gemini Panel -->
+    <div class="provider-panel" id="panel-google">
+      <div class="provider-panel-header">
+        <span class="provider-panel-icon">✨</span>
+        <div>
+          <div class="provider-panel-name">Google Gemini</div>
+          <div class="provider-panel-note">aistudio.google.com — Free tier available</div>
+        </div>
+      </div>
+      <div class="provider-field">
+        <label for="key-google">API Key</label>
+        <input type="password" class="modal-input" id="key-google" placeholder="AIza..." autocomplete="off" spellcheck="false" />
+      </div>
+      <div class="provider-field">
+        <label for="model-google">Model</label>
+        <select class="model-select" id="model-google">
+          <option value="gemini-2.0-flash">Gemini 2.0 Flash · Recommended</option>
+          <option value="gemini-1.5-pro">Gemini 1.5 Pro · Highest Quality</option>
+          <option value="gemini-1.5-flash">Gemini 1.5 Flash · Fastest</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- OpenAI Panel -->
+    <div class="provider-panel" id="panel-openai">
+      <div class="provider-panel-header">
+        <span class="provider-panel-icon">💬</span>
+        <div>
+          <div class="provider-panel-name">OpenAI ChatGPT</div>
+          <div class="provider-panel-note">platform.openai.com — Standard OpenAI API key</div>
+        </div>
+      </div>
+      <div class="provider-field">
+        <label for="key-openai">API Key</label>
+        <input type="password" class="modal-input" id="key-openai" placeholder="sk-..." autocomplete="off" spellcheck="false" />
+      </div>
+      <div class="provider-field">
+        <label for="model-openai">Model</label>
+        <select class="model-select" id="model-openai">
+          <option value="gpt-4o">GPT-4o · Recommended</option>
+          <option value="gpt-4o-mini">GPT-4o Mini · Fastest / Cheapest</option>
+          <option value="gpt-4-turbo">GPT-4 Turbo</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Custom / OpenAI-Compatible Panel -->
+    <div class="provider-panel" id="panel-custom">
+      <div class="provider-panel-header">
+        <span class="provider-panel-icon">⚙️</span>
+        <div>
+          <div class="provider-panel-name">Custom / OpenAI-Compatible</div>
+          <div class="provider-panel-note">Genspark, Groq, Together AI, Mistral, Ollama proxy, etc.</div>
+        </div>
+      </div>
+      <div class="provider-field">
+        <label for="custom-base-url">Base URL</label>
+        <input type="text" class="modal-input" id="custom-base-url" placeholder="https://api.groq.com/openai/v1" autocomplete="off" />
+      </div>
+      <div class="provider-field">
+        <label for="key-custom">API Key</label>
+        <input type="password" class="modal-input" id="key-custom" placeholder="Your API key..." autocomplete="off" spellcheck="false" />
+      </div>
+      <div class="provider-field">
+        <label for="model-custom-name">Model Name</label>
+        <input type="text" class="modal-input" id="model-custom-name" placeholder="e.g. llama-3.3-70b-versatile" autocomplete="off" />
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="modal-btn-cancel" onclick="closeApiModal()">Cancel</button>
+      <button class="modal-btn-save" onclick="saveProviderConfig()">Connect</button>
+    </div>
+    <div class="modal-security-note">🔒 Session-only — keys are never saved to disk or localStorage</div>
+  </div>
+</div>
+
+<!-- Sidebar backdrop (mobile) -->
+<div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar()"></div>
+
+<!-- ═══ APP LAYOUT ═══ -->
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-section-label">Pipeline Stages</div>
+    <ul class="stage-nav" id="stageNav">
+      <li class="stage-nav-item" data-stage="1" onclick="viewStage(1)">
+        <div class="stage-nav-num">1</div>
+        <div class="stage-nav-text">
+          <div class="stage-nav-title">Keyword Intelligence</div>
+          <div class="stage-nav-sub">Clustering &amp; Intent</div>
+        </div>
+        <span class="stage-nav-check">✓</span>
+      </li>
+      <li class="stage-nav-item" data-stage="2" onclick="viewStage(2)">
+        <div class="stage-nav-num">2</div>
+        <div class="stage-nav-text">
+          <div class="stage-nav-title">SERP Gap Analysis</div>
+          <div class="stage-nav-sub">Competitor Gaps</div>
+        </div>
+        <span class="stage-nav-check">✓</span>
+      </li>
+      <li class="stage-nav-item" data-stage="3" onclick="viewStage(3)">
+        <div class="stage-nav-num">3</div>
+        <div class="stage-nav-text">
+          <div class="stage-nav-title">Blog Architecture</div>
+          <div class="stage-nav-sub">Outline &amp; Structure</div>
+        </div>
+        <span class="stage-nav-check">✓</span>
+      </li>
+      <li class="stage-nav-item" data-stage="4" onclick="viewStage(4)">
+        <div class="stage-nav-num">4</div>
+        <div class="stage-nav-text">
+          <div class="stage-nav-title">Blog Generation</div>
+          <div class="stage-nav-sub">Full Content</div>
+        </div>
+        <span class="stage-nav-check">✓</span>
+      </li>
+      <li class="stage-nav-item" data-stage="5" onclick="viewStage(5)">
+        <div class="stage-nav-num">5</div>
+        <div class="stage-nav-text">
+          <div class="stage-nav-title">SEO Scorecard</div>
+          <div class="stage-nav-sub">10 Metric Audit</div>
+        </div>
+        <span class="stage-nav-check">✓</span>
+      </li>
+    </ul>
+    <div class="sidebar-bottom">
+      <div class="sidebar-provider-row">
+        <span class="sidebar-provider-label">Provider:</span>
+        <span class="sidebar-provider-name" id="sidebarProviderName">Not connected</span>
+      </div>
+      <div class="sidebar-info">
+        <strong>Blogy AI Blog Engine</strong><br>
+        BizMark'26 · DTU × Blogy<br>
+        <span class="sidebar-version">v1.0-beta · AI Pipeline</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+
+    <!-- Input Bar -->
+    <div class="input-bar">
+      <span class="input-icon">🔍</span>
+      <input type="text" class="keyword-input" id="keywordInput"
+        placeholder='Enter a seed keyword, e.g. "AI blog automation tool India"'
+        autocomplete="off" />
+      <button class="generate-btn" id="generateBtn" onclick="startPipeline()">
+        <span class="btn-text">Generate Blog</span>
+        <span class="arrow">→</span>
+        <div class="btn-spinner"></div>
+      </button>
+    </div>
+
+    <!-- Timer Bar -->
+    <div class="timer-bar" id="timerBar">
+      <span class="timer-stage-label" id="timerStageLabel">Initializing...</span>
+      <div class="timer-progress"><div class="timer-progress-fill" id="timerFill"></div></div>
+      <span class="timer-text" id="timerText">0s</span>
+    </div>
+
+    <!-- Content Area -->
+    <div class="content-area" id="contentArea">
+
+      <!-- Error Banner -->
+      <div class="error-banner" id="errorBanner">
+        <span>⚠️</span>
+        <div><strong>Error:</strong> <span id="errorText"></span></div>
+      </div>
+
+      <!-- Welcome State -->
+      <div class="welcome-state" id="welcomeState">
+        <div class="welcome-icon">⚡</div>
+        <div class="welcome-title">Ready to Generate</div>
+        <div class="welcome-desc">Enter a seed keyword above and let the 5-stage AI pipeline create a fully optimised, SEO-scored blog post in ~90 seconds.</div>
+        <div class="welcome-features">
+          <div class="welcome-feature">
+            <div class="welcome-feature-icon" style="background:var(--s1-light);color:var(--s1);">🎯</div>
+            Keyword Clustering
+          </div>
+          <div class="welcome-feature">
+            <div class="welcome-feature-icon" style="background:var(--s2-light);color:var(--s2);">📊</div>
+            SERP Gap Analysis
+          </div>
+          <div class="welcome-feature">
+            <div class="welcome-feature-icon" style="background:var(--s3-light);color:var(--s3);">📐</div>
+            Blog Architecture
+          </div>
+          <div class="welcome-feature">
+            <div class="welcome-feature-icon" style="background:var(--s4-light);color:var(--s4);">✍️</div>
+            AI Blog Writing
+          </div>
+          <div class="welcome-feature">
+            <div class="welcome-feature-icon" style="background:var(--s5-light);color:var(--s5);">📈</div>
+            SEO Scorecard
+          </div>
+        </div>
+        <div class="welcome-demo-row">
+          <span class="welcome-demo-hint">No API key? Try the offline demo:</span>
+          <button class="demo-mode-btn" onclick="startDemoMode()">⚡ Run Demo Mode</button>
+        </div>
+      </div>
+
+      <!-- Stage 1 Panel -->
+      <div class="stage-panel" id="stagePanel1">
+        <div class="stage-panel-header">
+          <div><span class="stage-panel-tag s1-tag">Stage 1</span></div>
+        </div>
+        <div class="stage-panel-title">Keyword Intelligence &amp; Clustering</div>
+        <div class="stage-panel-desc">Expanding seed keyword into clusters, search intent, and traffic estimates.</div>
+        <div class="prompt-viewer" id="promptViewer1">
+          <div class="prompt-viewer-toggle" onclick="togglePrompt(1)">
+            <span class="prompt-viewer-label">🧠 View Stage Prompt</span>
+            <span class="prompt-viewer-chevron">▼</span>
+          </div>
+          <div class="prompt-viewer-body"><pre class="prompt-code" id="promptCode1"></pre></div>
+        </div>
+        <div class="stage-output" id="stageOutput1"></div>
+      </div>
+
+      <!-- Stage 2 Panel -->
+      <div class="stage-panel" id="stagePanel2">
+        <div class="stage-panel-header">
+          <div><span class="stage-panel-tag s2-tag">Stage 2</span></div>
+        </div>
+        <div class="stage-panel-title">SERP Gap Analysis</div>
+        <div class="stage-panel-desc">Identifying content gaps that competitors consistently miss.</div>
+        <div class="prompt-viewer" id="promptViewer2">
+          <div class="prompt-viewer-toggle" onclick="togglePrompt(2)">
+            <span class="prompt-viewer-label">🧠 View Stage Prompt</span>
+            <span class="prompt-viewer-chevron">▼</span>
+          </div>
+          <div class="prompt-viewer-body"><pre class="prompt-code" id="promptCode2"></pre></div>
+        </div>
+        <div class="stage-output" id="stageOutput2"></div>
+      </div>
+
+      <!-- Stage 3 Panel -->
+      <div class="stage-panel" id="stagePanel3">
+        <div class="stage-panel-header">
+          <div><span class="stage-panel-tag s3-tag">Stage 3</span></div>
+        </div>
+        <div class="stage-panel-title">Blog Architecture &amp; Outline</div>
+        <div class="stage-panel-desc">Structuring the blog for ranking, readability, and conversion.</div>
+        <div class="prompt-viewer" id="promptViewer3">
+          <div class="prompt-viewer-toggle" onclick="togglePrompt(3)">
+            <span class="prompt-viewer-label">🧠 View Stage Prompt</span>
+            <span class="prompt-viewer-chevron">▼</span>
+          </div>
+          <div class="prompt-viewer-body"><pre class="prompt-code" id="promptCode3"></pre></div>
+        </div>
+        <div class="stage-output" id="stageOutput3"></div>
+      </div>
+
+      <!-- Stage 4 Panel -->
+      <div class="stage-panel" id="stagePanel4">
+        <div class="stage-panel-header">
+          <div><span class="stage-panel-tag s4-tag">Stage 4</span></div>
+        </div>
+        <div class="stage-panel-title">Full Blog Generation</div>
+        <div class="stage-panel-desc">Writing the complete SEO-optimised blog with natural prose.</div>
+        <div class="prompt-viewer" id="promptViewer4">
+          <div class="prompt-viewer-toggle" onclick="togglePrompt(4)">
+            <span class="prompt-viewer-label">🧠 View Stage Prompt</span>
+            <span class="prompt-viewer-chevron">▼</span>
+          </div>
+          <div class="prompt-viewer-body"><pre class="prompt-code" id="promptCode4"></pre></div>
+        </div>
+        <div class="blog-actions" id="blogActions" style="display:none;">
+          <button class="blog-action-btn primary" onclick="copyBlog()">📋 Copy Blog</button>
+          <button class="blog-action-btn" onclick="copyMarkdown()">📄 Copy Markdown</button>
+        </div>
+        <div class="stage-output" id="stageOutput4" style="margin-top:12px;"></div>
+      </div>
+
+      <!-- Stage 5 Panel -->
+      <div class="stage-panel" id="stagePanel5">
+        <div class="stage-panel-header">
+          <div><span class="stage-panel-tag s5-tag">Stage 5</span></div>
+        </div>
+        <div class="stage-panel-title">SEO Scorecard</div>
+        <div class="stage-panel-desc">Self-evaluating the blog against all 10 judging metrics.</div>
+        <div class="prompt-viewer" id="promptViewer5">
+          <div class="prompt-viewer-toggle" onclick="togglePrompt(5)">
+            <span class="prompt-viewer-label">🧠 View Stage Prompt</span>
+            <span class="prompt-viewer-chevron">▼</span>
+          </div>
+          <div class="prompt-viewer-body"><pre class="prompt-code" id="promptCode5"></pre></div>
+        </div>
+        <div class="scorecard-wrapper" id="scorecardWrapper"></div>
+      </div>
+
+    </div><!-- /content-area -->
+  </main>
+</div><!-- /app-layout -->
+
+<script src="script.js"></script>
+</body>
+</html>

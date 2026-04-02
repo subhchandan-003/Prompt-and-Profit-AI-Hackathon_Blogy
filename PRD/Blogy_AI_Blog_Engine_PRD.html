@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PRD — Blogy AI Blog Engine</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap');
+
+  :root {
+    --ink: #1a1a1a;
+    --ink-2: #444;
+    --ink-3: #777;
+    --ink-4: #aaa;
+    --surface: #f9f8f5;
+    --white: #ffffff;
+    --border: #e4e2db;
+    --accent: #1e5fcb;
+    --accent-light: #e8effc;
+    --accent-mid: #4a7de8;
+    --green: #0d7a4e;
+    --green-light: #e6f5ef;
+    --amber: #b45309;
+    --amber-light: #fef3e2;
+    --red: #b91c1c;
+    --red-light: #fef2f2;
+    --purple: #6d28d9;
+    --purple-light: #f5f0ff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.75;
+    color: var(--ink);
+    background: var(--surface);
+  }
+
+  /* ── Cover ── */
+  .cover {
+    background: var(--ink);
+    color: var(--white);
+    padding: 72px 80px 64px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cover::before {
+    content: '';
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 380px; height: 380px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.07);
+  }
+  .cover::after {
+    content: '';
+    position: absolute;
+    bottom: -120px; left: 60px;
+    width: 500px; height: 500px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.04);
+  }
+  .cover-tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+    border: 1px solid rgba(255,255,255,0.15);
+    padding: 4px 14px;
+    border-radius: 20px;
+    margin-bottom: 36px;
+  }
+  .cover h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 48px;
+    line-height: 1.15;
+    font-weight: 400;
+    margin-bottom: 12px;
+    max-width: 700px;
+  }
+  .cover h1 em {
+    font-style: italic;
+    color: rgba(255,255,255,0.55);
+  }
+  .cover-sub {
+    font-size: 16px;
+    color: rgba(255,255,255,0.55);
+    margin-bottom: 48px;
+    max-width: 520px;
+    line-height: 1.6;
+  }
+  .cover-meta {
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+  }
+  .cover-meta-item label {
+    display: block;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.35);
+    margin-bottom: 4px;
+  }
+  .cover-meta-item span {
+    font-size: 14px;
+    color: rgba(255,255,255,0.75);
+    font-weight: 500;
+  }
+
+  /* ── Layout ── */
+  .doc-wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 64px 40px 120px;
+  }
+
+  /* ── TOC ── */
+  .toc {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px 36px;
+    margin-bottom: 56px;
+  }
+  .toc-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin-bottom: 20px;
+  }
+  .toc-list { list-style: none; }
+  .toc-list li {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 5px 0;
+    border-bottom: 1px dashed var(--border);
+  }
+  .toc-list li:last-child { border-bottom: none; }
+  .toc-num {
+    font-size: 11px;
+    color: var(--ink-4);
+    font-weight: 500;
+    min-width: 22px;
+  }
+  .toc-label { font-size: 14px; color: var(--ink); }
+  .toc-dot { flex: 1; border-bottom: 1px dotted var(--border); margin-bottom: 4px; }
+  .toc-page { font-size: 12px; color: var(--ink-4); }
+
+  /* ── Section headings ── */
+  .section { margin-bottom: 56px; }
+  .section-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 30px;
+    font-weight: 400;
+    line-height: 1.2;
+    color: var(--ink);
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 28px 0 10px;
+  }
+  h4 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-2);
+    margin: 20px 0 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  p { margin-bottom: 14px; color: var(--ink-2); font-size: 15px; }
+  p:last-child { margin-bottom: 0; }
+
+  /* ── Callout boxes ── */
+  .callout {
+    border-radius: 10px;
+    padding: 18px 22px;
+    margin: 20px 0;
+    font-size: 14px;
+    line-height: 1.65;
+  }
+  .callout-info { background: var(--accent-light); border-left: 3px solid var(--accent); color: var(--accent); }
+  .callout-success { background: var(--green-light); border-left: 3px solid var(--green); color: var(--green); }
+  .callout-warn { background: var(--amber-light); border-left: 3px solid var(--amber); color: var(--amber); }
+  .callout-neutral { background: var(--white); border: 1px solid var(--border); color: var(--ink-2); }
+  .callout strong { font-weight: 600; }
+
+  /* ── Tag pills ── */
+  .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+  .pill {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 4px 14px;
+    border-radius: 20px;
+  }
+  .pill-blue { background: var(--accent-light); color: var(--accent); }
+  .pill-green { background: var(--green-light); color: var(--green); }
+  .pill-amber { background: var(--amber-light); color: var(--amber); }
+  .pill-purple { background: var(--purple-light); color: var(--purple); }
+  .pill-red { background: var(--red-light); color: var(--red); }
+  .pill-neutral { background: #f0efe9; color: var(--ink-3); }
+
+  /* ── Metrics grid ── */
+  .metric-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .metric-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+  }
+  .metric-card-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    color: var(--ink);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .metric-card-label {
+    font-size: 12px;
+    color: var(--ink-3);
+    line-height: 1.4;
+  }
+
+  /* ── Stage pipeline ── */
+  .pipeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 24px 0;
+  }
+  .stage-row {
+    display: flex;
+    gap: 0;
+    align-items: stretch;
+  }
+  .stage-connector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 40px;
+    flex-shrink: 0;
+  }
+  .stage-dot {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    flex-shrink: 0;
+    margin-top: 18px;
+  }
+  .stage-line {
+    width: 2px;
+    flex: 1;
+    min-height: 20px;
+    background: var(--border);
+    margin: 4px 0;
+  }
+  .stage-card {
+    flex: 1;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 22px;
+    margin: 8px 0 8px 12px;
+  }
+  .stage-card-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+  .stage-card-desc {
+    font-size: 13px;
+    color: var(--ink-3);
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+  .stage-output-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-4);
+    margin-bottom: 6px;
+  }
+  .output-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+  .output-pill {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: #f0efe9;
+    color: var(--ink-3);
+    font-weight: 500;
+  }
+
+  .sd1 { background: var(--accent-light); color: var(--accent); }
+  .sd2 { background: var(--green-light); color: var(--green); }
+  .sd3 { background: var(--amber-light); color: var(--amber); }
+  .sd4 { background: var(--purple-light); color: var(--purple); }
+  .sd5 { background: var(--red-light); color: var(--red); }
+
+  /* ── Requirement table ── */
+  .req-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin: 16px 0;
+    background: var(--white);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .req-table thead tr {
+    background: #f0efe9;
+  }
+  .req-table th {
+    text-align: left;
+    padding: 10px 16px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    border-bottom: 1px solid var(--border);
+  }
+  .req-table td {
+    padding: 11px 16px;
+    color: var(--ink-2);
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .req-table tr:last-child td { border-bottom: none; }
+  .req-table tr:hover td { background: var(--surface); }
+  .req-id { font-family: monospace; font-size: 12px; color: var(--ink-4); }
+  .priority-p1 { background: var(--red-light); color: var(--red); font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 20px; }
+  .priority-p2 { background: var(--amber-light); color: var(--amber); font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 20px; }
+  .priority-p3 { background: var(--green-light); color: var(--green); font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 20px; }
+
+  /* ── Score table ── */
+  .score-row {
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    gap: 16px;
+  }
+  .score-row:last-child { border-bottom: none; }
+  .score-name { flex: 1; font-size: 14px; color: var(--ink); }
+  .score-desc { font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+  .score-bar-wrap { width: 180px; height: 6px; background: var(--border); border-radius: 3px; }
+  .score-bar { height: 6px; border-radius: 3px; background: var(--accent); }
+  .score-weight { font-size: 12px; color: var(--ink-3); min-width: 32px; text-align: right; }
+
+  /* ── UI wireframe ── */
+  .wireframe {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 20px 0;
+    font-size: 13px;
+  }
+  .wf-bar {
+    background: var(--ink);
+    color: rgba(255,255,255,0.7);
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .wf-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.2); }
+  .wf-body { display: flex; min-height: 320px; }
+  .wf-sidebar {
+    width: 200px;
+    border-right: 1px solid var(--border);
+    padding: 20px;
+    flex-shrink: 0;
+  }
+  .wf-main { flex: 1; padding: 20px; }
+  .wf-label { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-4); margin-bottom: 12px; }
+  .wf-stage-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    margin-bottom: 4px;
+    font-size: 12px;
+    color: var(--ink-3);
+  }
+  .wf-stage-item.active { background: var(--accent-light); color: var(--accent); font-weight: 500; }
+  .wf-stage-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
+  .wf-stage-item.active .wf-stage-dot { background: var(--accent); }
+  .wf-input-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .wf-input {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 13px;
+    color: var(--ink-3);
+    font-style: italic;
+  }
+  .wf-btn {
+    background: var(--ink);
+    color: var(--white);
+    border-radius: 6px;
+    padding: 8px 18px;
+    font-size: 13px;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+  .wf-output {
+    background: var(--surface);
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    height: 160px;
+    color: var(--ink-4);
+    font-size: 13px;
+  }
+  .wf-score-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .wf-score-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 11px;
+    color: var(--ink-3);
+  }
+  .wf-score-val { font-size: 16px; font-weight: 600; color: var(--ink); }
+
+  /* ── Timeline ── */
+  .timeline { margin: 20px 0; }
+  .tl-row {
+    display: flex;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+    align-items: flex-start;
+  }
+  .tl-row:last-child { border-bottom: none; }
+  .tl-tag {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    min-width: 80px;
+    text-align: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .tl-content { flex: 1; }
+  .tl-title { font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 3px; }
+  .tl-desc { font-size: 13px; color: var(--ink-3); }
+
+  /* ── Risk table ── */
+  .risk-row {
+    display: grid;
+    grid-template-columns: 1fr 80px 80px 1fr;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    align-items: start;
+  }
+  .risk-row.header {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    background: #f0efe9;
+    border-radius: 8px 8px 0 0;
+  }
+  .risk-wrap {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 16px 0;
+  }
+  .risk-row:last-child { border-bottom: none; }
+
+  /* ── Footer ── */
+  .doc-footer {
+    margin-top: 80px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: var(--ink-4);
+  }
+  .footer-brand { font-weight: 600; color: var(--ink-3); }
+
+  @media print {
+    body { background: white; }
+    .cover { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── COVER ── -->
+<div class="cover">
+  <div class="cover-tag">Product Requirements Document · v1.0</div>
+  <h1>Blogy AI Blog Engine<br><em>Prompt &amp; Profit Hackathon</em></h1>
+  <p class="cover-sub">A scalable, multi-stage AI pipeline that converts seed keywords into high-ranking, GEO-optimised, conversion-focused blog content — with live SEO scoring.</p>
+  <div class="cover-meta">
+    <div class="cover-meta-item"><label>Event</label><span>BizMark'26 · DTU × Blogy</span></div>
+    <div class="cover-meta-item"><label>Part</label><span>1 of 3 — AI Blog Engine Architecture</span></div>
+    <div class="cover-meta-item"><label>Version</label><span>1.0 — Pre-build</span></div>
+    <div class="cover-meta-item"><label>Status</label><span>Draft → Approved for Build</span></div>
+  </div>
+</div>
+
+<!-- ── DOCUMENT BODY ── -->
+<div class="doc-wrap">
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">Table of Contents</div>
+    <ul class="toc-list">
+      <li><span class="toc-num">1</span><span class="toc-label">Executive Summary &amp; Objective</span><span class="toc-dot"></span><span class="toc-page">2</span></li>
+      <li><span class="toc-num">2</span><span class="toc-label">Problem Statement</span><span class="toc-dot"></span><span class="toc-page">2</span></li>
+      <li><span class="toc-num">3</span><span class="toc-label">Users &amp; Stakeholders</span><span class="toc-dot"></span><span class="toc-page">3</span></li>
+      <li><span class="toc-num">4</span><span class="toc-label">Success Metrics &amp; Judging Criteria</span><span class="toc-dot"></span><span class="toc-page">3</span></li>
+      <li><span class="toc-num">5</span><span class="toc-label">Five-Stage Pipeline Architecture</span><span class="toc-dot"></span><span class="toc-page">4</span></li>
+      <li><span class="toc-num">6</span><span class="toc-label">Functional Requirements</span><span class="toc-dot"></span><span class="toc-page">6</span></li>
+      <li><span class="toc-num">7</span><span class="toc-label">UI &amp; UX Specifications</span><span class="toc-dot"></span><span class="toc-page">8</span></li>
+      <li><span class="toc-num">8</span><span class="toc-label">Technical Architecture</span><span class="toc-dot"></span><span class="toc-page">9</span></li>
+      <li><span class="toc-num">9</span><span class="toc-label">SEO Scorecard — Metric Definitions</span><span class="toc-dot"></span><span class="toc-page">10</span></li>
+      <li><span class="toc-num">10</span><span class="toc-label">Non-Functional Requirements</span><span class="toc-dot"></span><span class="toc-page">11</span></li>
+      <li><span class="toc-num">11</span><span class="toc-label">Risks &amp; Mitigations</span><span class="toc-dot"></span><span class="toc-page">12</span></li>
+      <li><span class="toc-num">12</span><span class="toc-label">Build Timeline</span><span class="toc-dot"></span><span class="toc-page">12</span></li>
+      <li><span class="toc-num">13</span><span class="toc-label">Out of Scope</span><span class="toc-dot"></span><span class="toc-page">13</span></li>
+    </ul>
+  </div>
+
+  <!-- 1. EXECUTIVE SUMMARY -->
+  <div class="section">
+    <div class="section-label">Section 01</div>
+    <h2>Executive Summary &amp; Objective</h2>
+    <p>The Blogy AI Blog Engine is a browser-based, single-page application that takes a user-supplied seed keyword and systematically transforms it into a fully structured, SEO-optimised blog post through a five-stage AI prompt pipeline powered by the Anthropic Claude API.</p>
+    <p>The tool is designed specifically for the Prompt &amp; Profit: BizMark'26 hackathon, fulfilling the requirements of Part 1 of the problem statement. It must survive a live stress-test by the judging panel, demonstrating repeatability, measurable SEO strength, and architectural clarity.</p>
+    <div class="callout callout-info">
+      <strong>Core objective:</strong> Convert keyword intent → high-ranking, GEO-optimised, conversion-focused blog content through a structured, documented, and repeatable prompt flow — with every intermediate output visible to judges.
+    </div>
+    <div class="metric-grid" style="margin-top:24px;">
+      <div class="metric-card"><div class="metric-card-num">5</div><div class="metric-card-label">Pipeline stages, each with a visible prompt</div></div>
+      <div class="metric-card"><div class="metric-card-num">10</div><div class="metric-card-label">SEO metrics scored live after generation</div></div>
+      <div class="metric-card"><div class="metric-card-num">~90s</div><div class="metric-card-label">End-to-end generation time target</div></div>
+      <div class="metric-card"><div class="metric-card-num">100%</div><div class="metric-card-label">Client-side — no backend server required</div></div>
+    </div>
+  </div>
+
+  <!-- 2. PROBLEM STATEMENT -->
+  <div class="section">
+    <div class="section-label">Section 02</div>
+    <h2>Problem Statement</h2>
+    <p>Content teams and startups using tools like Blogy face a recurring bottleneck: converting a raw keyword idea into a fully structured, SEO-validated blog post requires multiple disconnected tools, significant manual effort, and deep SEO expertise.</p>
+    <p>Current AI writing tools generate text in a single pass — with no keyword clustering, no SERP gap awareness, no structured prompt architecture, and no self-scored quality output. The result is generic content that doesn't rank.</p>
+    <h3>What the Engine Solves</h3>
+    <div class="pill-row">
+      <span class="pill pill-blue">No keyword strategy → auto keyword clustering</span>
+      <span class="pill pill-green">No competitive gap → SERP gap simulation</span>
+      <span class="pill pill-amber">No structure → AI-generated blog architecture</span>
+      <span class="pill pill-purple">No quality control → self-scoring SEO dashboard</span>
+      <span class="pill pill-red">Not repeatable → documented prompt pipeline</span>
+    </div>
+  </div>
+
+  <!-- 3. USERS & STAKEHOLDERS -->
+  <div class="section">
+    <div class="section-label">Section 03</div>
+    <h2>Users &amp; Stakeholders</h2>
+    <h3>Primary User (Demo Context)</h3>
+    <p>The hackathon judges are the primary "users" during the finale. They will supply a live keyword and expect the system to complete the full pipeline without failure. They evaluate on architectural clarity, not just the final blog quality.</p>
+    <h3>Secondary User (Real-World Context)</h3>
+    <p>Startups and content marketers using Blogy who need to generate SEO-ready blog content at scale — without needing deep SEO expertise. The engine abstracts the complexity into a single keyword input.</p>
+    <h3>Stakeholders</h3>
+    <div class="pill-row">
+      <span class="pill pill-neutral">Hackathon judging panel (BizMark'26)</span>
+      <span class="pill pill-neutral">Blogy (case partner)</span>
+      <span class="pill pill-neutral">DTU Consulting Group</span>
+      <span class="pill pill-neutral">Team (builders)</span>
+    </div>
+  </div>
+
+  <!-- 4. SUCCESS METRICS -->
+  <div class="section">
+    <div class="section-label">Section 04</div>
+    <h2>Success Metrics &amp; Judging Criteria</h2>
+    <p>The problem statement defines 10 explicit analysis metrics for Part 1. Each maps directly to an engine feature and a scorecard output. The table below defines what "success" looks like for each.</p>
+    <table class="req-table">
+      <thead>
+        <tr>
+          <th>Metric</th>
+          <th>Target Threshold</th>
+          <th>How Engine Achieves It</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Prompt Architecture Clarity</td><td>All 5 stage prompts visible</td><td>Expandable prompt viewer in UI per stage</td></tr>
+        <tr><td>Keyword Clustering Logic</td><td>3+ cluster tiers (primary, secondary, LSI)</td><td>Stage 1 output with labelled clusters</td></tr>
+        <tr><td>SERP Gap Identification</td><td>3+ gaps identified with reasoning</td><td>Stage 2 structured gap output</td></tr>
+        <tr><td>Projected Traffic Potential</td><td>Estimated monthly range shown</td><td>Stage 1 traffic estimate with confidence band</td></tr>
+        <tr><td>SEO Optimisation %</td><td>Score ≥ 80%</td><td>Stage 5 self-scoring rubric</td></tr>
+        <tr><td>AI Detection % &amp; Naturalness</td><td>AI detection &lt; 30%, naturalness ≥ 80%</td><td>Stage 4 prompt engineering + Stage 5 estimate</td></tr>
+        <tr><td>Snippet Readiness Probability</td><td>Score shown as %</td><td>Stage 3 outline flags snippet-target section</td></tr>
+        <tr><td>Keyword Density Compliance</td><td>1–2% primary density</td><td>Stage 5 density analysis</td></tr>
+        <tr><td>Internal Linking Logic</td><td>3+ internal link anchors suggested</td><td>Stage 3 architecture output</td></tr>
+        <tr><td>Scalability &amp; Replicability</td><td>Same result quality on any keyword</td><td>Stateless pipeline — works on any input</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 5. PIPELINE ARCHITECTURE -->
+  <div class="section">
+    <div class="section-label">Section 05</div>
+    <h2>Five-Stage Pipeline Architecture</h2>
+    <p>The engine operates as a sequential prompt pipeline. Each stage receives the outputs of all previous stages as context, building progressively richer intelligence before producing the final blog.</p>
+
+    <div class="pipeline">
+
+      <div class="stage-row">
+        <div class="stage-connector">
+          <div class="stage-dot sd1">1</div>
+          <div class="stage-line"></div>
+        </div>
+        <div class="stage-card">
+          <div class="stage-card-title">Keyword Intelligence &amp; Clustering</div>
+          <div class="stage-card-desc">Takes the seed keyword and expands it into a full keyword map. Identifies primary intent (informational / commercial / transactional), clusters secondary and LSI keywords, maps user questions, and estimates monthly search volume range and traffic potential.</div>
+          <div class="stage-output-label">Outputs</div>
+          <div class="output-pills">
+            <span class="output-pill">Primary keyword</span>
+            <span class="output-pill">5–8 secondary keywords</span>
+            <span class="output-pill">LSI terms</span>
+            <span class="output-pill">Search intent label</span>
+            <span class="output-pill">Traffic estimate (low–high)</span>
+            <span class="output-pill">Target audience profile</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="stage-row">
+        <div class="stage-connector">
+          <div class="stage-dot sd2">2</div>
+          <div class="stage-line"></div>
+        </div>
+        <div class="stage-card">
+          <div class="stage-card-title">SERP Gap Analysis</div>
+          <div class="stage-card-desc">Simulates what top-10 SERP results likely cover for this keyword, based on known ranking patterns. Then identifies 3–5 content gaps — angles, sub-topics, or depths of coverage that competitors consistently miss. These gaps form the differentiating hooks of the blog.</div>
+          <div class="stage-output-label">Outputs</div>
+          <div class="output-pills">
+            <span class="output-pill">Simulated competitor coverage map</span>
+            <span class="output-pill">3–5 identified SERP gaps</span>
+            <span class="output-pill">Differentiating angle recommendation</span>
+            <span class="output-pill">Featured snippet opportunity flag</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="stage-row">
+        <div class="stage-connector">
+          <div class="stage-dot sd3">3</div>
+          <div class="stage-line"></div>
+        </div>
+        <div class="stage-card">
+          <div class="stage-card-title">Blog Architecture &amp; Outline</div>
+          <div class="stage-card-desc">Uses the keyword clusters and SERP gaps to generate a structured blog outline optimised for both ranking and conversion. Defines the H1 title, meta description, all H2/H3 sections with rationale, featured snippet target section, CTA placement, internal link anchor suggestions, and target word count.</div>
+          <div class="stage-output-label">Outputs</div>
+          <div class="output-pills">
+            <span class="output-pill">H1 title (keyword-optimised)</span>
+            <span class="output-pill">Meta description (155 chars)</span>
+            <span class="output-pill">Full H2/H3 outline</span>
+            <span class="output-pill">Word count target</span>
+            <span class="output-pill">Snippet-target section marked</span>
+            <span class="output-pill">3+ internal link anchors</span>
+            <span class="output-pill">CTA placement recommendation</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="stage-row">
+        <div class="stage-connector">
+          <div class="stage-dot sd4">4</div>
+          <div class="stage-line"></div>
+        </div>
+        <div class="stage-card">
+          <div class="stage-card-title">Full Blog Generation</div>
+          <div class="stage-card-desc">Writes the complete blog using the Stage 3 outline, injecting keywords at the correct density (1–2% primary), using natural varied sentence structure to minimise AI detection, including the featured snippet section, internal link anchors, and a strong conversion CTA for Blogy. GEO optimisation signals (India-specific context) are embedded where relevant.</div>
+          <div class="stage-output-label">Outputs</div>
+          <div class="output-pills">
+            <span class="output-pill">Full blog (~1,500–2,000 words)</span>
+            <span class="output-pill">Proper H1/H2/H3 formatting</span>
+            <span class="output-pill">Keyword-dense but natural prose</span>
+            <span class="output-pill">Featured snippet paragraph</span>
+            <span class="output-pill">Internal link anchor text</span>
+            <span class="output-pill">CTA block for Blogy</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="stage-row">
+        <div class="stage-connector">
+          <div class="stage-dot sd5">5</div>
+        </div>
+        <div class="stage-card">
+          <div class="stage-card-title">SEO Scorecard Generation</div>
+          <div class="stage-card-desc">Self-evaluates the generated blog against all 10 judging metrics. Produces a scored rubric with a 0–100% score per metric, an overall SEO health score, and specific improvement flags. This scorecard is displayed as an animated dashboard in the UI.</div>
+          <div class="stage-output-label">Outputs</div>
+          <div class="output-pills">
+            <span class="output-pill">10 individual metric scores</span>
+            <span class="output-pill">Overall SEO health score</span>
+            <span class="output-pill">Keyword density %</span>
+            <span class="output-pill">AI detection estimate %</span>
+            <span class="output-pill">Naturalness score</span>
+            <span class="output-pill">Snippet readiness %</span>
+            <span class="output-pill">Improvement flags</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="callout callout-success">
+      <strong>Key architectural principle:</strong> Every stage passes its full output as context to the next stage. Stage 4 (blog generation) receives Stages 1–3 outputs simultaneously, ensuring perfect alignment between keyword strategy, SERP gaps, and content structure.
+    </div>
+  </div>
+
+  <!-- 6. FUNCTIONAL REQUIREMENTS -->
+  <div class="section">
+    <div class="section-label">Section 06</div>
+    <h2>Functional Requirements</h2>
+
+    <h3>FR-01 · Keyword Input</h3>
+    <table class="req-table">
+      <thead><tr><th>ID</th><th>Requirement</th><th>Priority</th></tr></thead>
+      <tbody>
+        <tr><td class="req-id">FR-01.1</td><td>User must be able to enter any seed keyword (1–10 words) in a text input field</td><td><span class="priority-p1">P1</span></td></tr>
+        <tr><td class="req-id">FR-01.2</td><td>System must validate that input is non-empty before triggering generation</td><td><span class="priority-p1">P1</span></td></tr>
+        <tr><td class="req-id">FR-01.3</td><td>A "Generate Blog" button triggers the pipeline</td><td><span class="priority-p1">P1</span></td></tr>
+        <tr><td class="req-id">FR-01.4</td><td>Button must disable during generation to prevent double-submission</td><td><span class="priority-p2">P2</span></td></tr>
+        <tr><td class="req-id">FR-01.5</td><td>System must accept any keyword — not domain-locked</td><td><span class="priority-p1">P1</span></td></tr>
+      </tbody>
+    </table>
+
+    <h3>FR-02 · Pipeline Execution &amp; Progress</h3>
+    <table class="req-table">
+      <thead><tr><th>ID</th><th>Requirement</th><th>Priority</th></tr></thead>
+      <tbody>
+        <tr><td class="req-id">FR-02.1</td><td>Each of the 5 stages must execute sequentially, in order</td><td><span class="priority-p1">P1</span></td></tr>
+        <tr><td class="req-id">FR-02.2</td><td>The active stage must be visually indicated in the sidebar progress tracker</td><td><span class="priority-p1">P1</span></td></tr>
+        <tr><td class="req-id">FR-02.3</td><td>Completed stages must show a checkmark / completed state</td><td><span class="priority-p2">P2</span></td></tr>
+        <tr><td class="req-id">FR-02.4</td><td>Each stage output must stream into the main content area as it is generated</td><td><span class="priority-p1">P1</span></td></tr>
+        <tr><td class="req-id">FR-02.5</td><td>User must be able to click any completed stage to review its output</td><td><span class="priority-p2">P2</span></td></tr>
+        <tr><td class="req-id">FR-02.6</td><td>The exact prompt used for each stage must be viewable via an expand/collapse control</td><td><span class="priority-p1">P1 — critical for judges</span></td></tr>
+      </tbody>
+    </table>
+
+    <h3>FR-03 · Blog Output</h3>
+    <table class="req-table">
+      <thead><tr><th>ID</th><th>Requirement</th><th>Priority</th></tr></thead>
+      <tbody>
+        <tr><td class="req-id">FR-03.1</td><td>Final blog must render with full markdown formatting (H1, H2, H3, bold, lists)</td><td><span class="priority-p1">P1</span></td></tr>
+        <tr><td class="req-id">FR-03.2</td><td>H1 title and meta description must be displayed separately above the blog body</td><td><span class="priority-p1">P1</span></td></tr>
+        <tr><td class="req-id">FR-03.3</td><td>A "Copy Blog" button must copy the full blog markdown to clipboard</td><td><span class="priority-p1">P1</span></td></tr>
+        <tr><td class="req-id">FR-03.4</td><td>Blog must be 1,500–2,000 words in length</td><td><span class="priority-p2">P2</span></td></tr>
+        <tr><td class="req-id">FR-03.5</td><td>Internal link anchors must be visually highlighted in the rendered blog</td><td><span class="priority-p3">P3</span></td></tr>
+      </tbody>
+    </table>
+
+    <h3>FR-04 · SEO Scorecard</h3>
+    <table class="req-table">
+      <thead><tr><th>ID</th><th>Requirement</th><th>Priority</th></tr></thead>
+      <tbody>
+        <tr><td class="req-id">FR-04.1</td><td>Scorecard must display all 10 judging metrics with individual scores</td><td><span class="priority-p1">P1</span></td></tr>
+        <tr><td class="req-id">FR-04.2</td><td>Each metric must show a % score with an animated progress bar</td><td><span class="priority-p1">P1</span></td></tr>
+        <tr><td class="req-id">FR-04.3</td><td>An overall SEO health score (0–100) must be displayed prominently</td><td><span class="priority-p1">P1</span></td></tr>
+        <tr><td class="req-id">FR-04.4</td><td>Scorecard must appear only after Stage 5 completes</td><td><span class="priority-p1">P1</span></td></tr>
+        <tr><td class="req-id">FR-04.5</td><td>Each score must have a one-line explanation for the judge</td><td><span class="priority-p2">P2</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 7. UI & UX SPECS -->
+  <div class="section">
+    <div class="section-label">Section 07</div>
+    <h2>UI &amp; UX Specifications</h2>
+
+    <h3>Layout Structure</h3>
+    <div class="wireframe">
+      <div class="wf-bar">
+        <div class="wf-dot"></div><div class="wf-dot"></div><div class="wf-dot"></div>
+        &nbsp;&nbsp;Blogy AI Blog Engine · Prompt &amp; Profit
+      </div>
+      <div class="wf-body">
+        <div class="wf-sidebar">
+          <div class="wf-label">Pipeline</div>
+          <div class="wf-stage-item active"><div class="wf-stage-dot"></div>Stage 1 · Keywords</div>
+          <div class="wf-stage-item"><div class="wf-stage-dot"></div>Stage 2 · SERP Gap</div>
+          <div class="wf-stage-item"><div class="wf-stage-dot"></div>Stage 3 · Outline</div>
+          <div class="wf-stage-item"><div class="wf-stage-dot"></div>Stage 4 · Blog</div>
+          <div class="wf-stage-item"><div class="wf-stage-dot"></div>Stage 5 · Score</div>
+        </div>
+        <div class="wf-main">
+          <div class="wf-input-row">
+            <div class="wf-input">e.g. "AI blog automation tool India"</div>
+            <div class="wf-btn">Generate →</div>
+          </div>
+          <div class="wf-output">
+            Stage 1 output streams here in real time...<br><br>
+            Keyword clusters, search intent, traffic estimate...
+          </div>
+          <div class="wf-score-grid" style="margin-top:12px;">
+            <div class="wf-score-card"><div class="wf-score-val">84%</div>SEO Score</div>
+            <div class="wf-score-card"><div class="wf-score-val">91%</div>Naturalness</div>
+            <div class="wf-score-card"><div class="wf-score-val">78%</div>Snippet Ready</div>
+            <div class="wf-score-card"><div class="wf-score-val">1.4%</div>KW Density</div>
+            <div class="wf-score-card"><div class="wf-score-val">22%</div>AI Detection</div>
+            <div class="wf-score-card"><div class="wf-score-val">3</div>Internal Links</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h3>Design Principles</h3>
+    <p>The UI must look professional enough to stand up in a live demo. Key design decisions:</p>
+    <div class="callout callout-neutral">
+      <strong>Dark header bar</strong> with Blogy branding. Left sidebar shows pipeline progress. Main area streams AI output. Bottom scorecard animates in after Stage 5. Single-page — no navigation. Mobile-friendly but optimised for laptop demo.
+    </div>
+
+    <h3>Colour Coding by Stage</h3>
+    <div class="pill-row">
+      <span class="pill pill-blue">Stage 1 · Blue</span>
+      <span class="pill pill-green">Stage 2 · Green</span>
+      <span class="pill pill-amber">Stage 3 · Amber</span>
+      <span class="pill pill-purple">Stage 4 · Purple</span>
+      <span class="pill pill-red">Stage 5 · Teal/Scored</span>
+    </div>
+  </div>
+
+  <!-- 8. TECHNICAL ARCHITECTURE -->
+  <div class="section">
+    <div class="section-label">Section 08</div>
+    <h2>Technical Architecture</h2>
+
+    <h3>Stack</h3>
+    <table class="req-table">
+      <thead><tr><th>Layer</th><th>Technology</th><th>Rationale</th></tr></thead>
+      <tbody>
+        <tr><td>Frontend</td><td>HTML + CSS + Vanilla JS (single file)</td><td>No build step, runs in browser, zero deployment friction for demo</td></tr>
+        <tr><td>AI API</td><td>Anthropic Claude API (claude-sonnet-4-20250514)</td><td>Best-in-class instruction following; streaming support</td></tr>
+        <tr><td>Streaming</td><td>fetch() with ReadableStream</td><td>Stage outputs stream token-by-token for live demo effect</td></tr>
+        <tr><td>Markdown</td><td>marked.js (CDN)</td><td>Renders Stage 4 blog output with full heading/list support</td></tr>
+        <tr><td>Hosting</td><td>None required (local file open)</td><td>Runs as index.html in browser — no server needed</td></tr>
+      </tbody>
+    </table>
+
+    <h3>API Call Strategy</h3>
+    <p>Each stage makes an independent API call with an accumulating system prompt context. Stage N+1 receives the full outputs of Stages 1 through N as user-turn context, ensuring each stage builds on prior intelligence.</p>
+
+    <div class="callout callout-warn">
+      <strong>API Key handling:</strong> The API key is entered once by the user in the UI and stored in memory (not localStorage). It is never hardcoded. The judges will use their own key or the team's key will be provided during demo.
+    </div>
+
+    <h3>Prompt Architecture Pattern</h3>
+    <p>Every stage prompt follows this structure:</p>
+    <div class="callout callout-neutral">
+      <strong>[System]</strong> You are an expert SEO strategist and content architect...<br>
+      <strong>[Context]</strong> Seed keyword: {keyword}<br>
+      <strong>[Prior outputs]</strong> Stage 1 output: {json}<br>
+      <strong>[Task]</strong> Perform Stage 2: SERP gap analysis. Output in the following JSON structure: {...}<br>
+      <strong>[Constraints]</strong> Do not include preamble. Respond only in the specified format.
+    </div>
+  </div>
+
+  <!-- 9. SEO SCORECARD DEFINITIONS -->
+  <div class="section">
+    <div class="section-label">Section 09</div>
+    <h2>SEO Scorecard — Metric Definitions</h2>
+    <p>Stage 5 scores the blog against 10 metrics. Each metric is scored 0–100 by the AI rubric. The definitions and target thresholds are specified below.</p>
+
+    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin-top:16px;">
+      <div class="score-row">
+        <div class="score-name">Prompt Architecture Clarity<div class="score-desc">Is each stage prompt clearly structured and purposeful?</div></div>
+        <div class="score-bar-wrap"><div class="score-bar" style="width:90%"></div></div>
+        <div class="score-weight">Target: 90%</div>
+      </div>
+      <div class="score-row">
+        <div class="score-name">Keyword Clustering Logic<div class="score-desc">Are primary, secondary, and LSI keywords properly identified?</div></div>
+        <div class="score-bar-wrap"><div class="score-bar" style="width:85%"></div></div>
+        <div class="score-weight">Target: 85%</div>
+      </div>
+      <div class="score-row">
+        <div class="score-name">SERP Gap Identification<div class="score-desc">Are meaningful content gaps identified vs competitor pages?</div></div>
+        <div class="score-bar-wrap"><div class="score-bar" style="width:80%"></div></div>
+        <div class="score-weight">Target: 80%</div>
+      </div>
+      <div class="score-row">
+        <div class="score-name">Projected Traffic Potential<div class="score-desc">Is a credible monthly search volume estimate provided?</div></div>
+        <div class="score-bar-wrap"><div class="score-bar" style="width:75%"></div></div>
+        <div class="score-weight">Target: 75%</div>
+      </div>
+      <div class="score-row">
+        <div class="score-name">SEO Optimisation Percentage<div class="score-desc">Overall on-page SEO score via rubric (title, meta, H-tags, density)</div></div>
+        <div class="score-bar-wrap"><div class="score-bar" style="width:80%"></div></div>
+        <div class="score-weight">Target: 80%</div>
+      </div>
+      <div class="score-row">
+        <div class="score-name">AI Detection Estimate<div class="score-desc">Lower is better — estimates likelihood of AI detection (inverted score)</div></div>
+        <div class="score-bar-wrap"><div class="score-bar" style="width:70%; background: var(--green);"></div></div>
+        <div class="score-weight">Target: &lt;30%</div>
+      </div>
+      <div class="score-row">
+        <div class="score-name">Naturalness Score<div class="score-desc">Does the writing read like a human expert wrote it?</div></div>
+        <div class="score-bar-wrap"><div class="score-bar" style="width:85%"></div></div>
+        <div class="score-weight">Target: 85%</div>
+      </div>
+      <div class="score-row">
+        <div class="score-name">Snippet Readiness Probability<div class="score-desc">Does a section directly answer a likely featured snippet query?</div></div>
+        <div class="score-bar-wrap"><div class="score-bar" style="width:75%"></div></div>
+        <div class="score-weight">Target: 75%</div>
+      </div>
+      <div class="score-row">
+        <div class="score-name">Keyword Density Compliance<div class="score-desc">Is primary keyword density between 1–2%? Secondary at 0.5–1%?</div></div>
+        <div class="score-bar-wrap"><div class="score-bar" style="width:80%"></div></div>
+        <div class="score-weight">Target: 80%</div>
+      </div>
+      <div class="score-row">
+        <div class="score-name">Internal Linking Logic<div class="score-desc">Are 3+ relevant internal link anchors naturally embedded?</div></div>
+        <div class="score-bar-wrap"><div class="score-bar" style="width:80%"></div></div>
+        <div class="score-weight">Target: 80%</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10. NON-FUNCTIONAL REQUIREMENTS -->
+  <div class="section">
+    <div class="section-label">Section 10</div>
+    <h2>Non-Functional Requirements</h2>
+    <table class="req-table">
+      <thead><tr><th>Category</th><th>Requirement</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Performance</strong></td><td>Full pipeline must complete in under 120 seconds on a standard laptop with good internet</td></tr>
+        <tr><td><strong>Reliability</strong></td><td>Must not crash or hang during live demo. Error states must be caught and displayed gracefully</td></tr>
+        <tr><td><strong>Portability</strong></td><td>Runs as a single HTML file — no install, no server, no Node.js required by the demo operator</td></tr>
+        <tr><td><strong>Repeatability</strong></td><td>Same keyword → same structural quality output on every run (AI temperature set to 0.3)</td></tr>
+        <tr><td><strong>Transparency</strong></td><td>All 5 prompts must be viewable in the UI — judging panel can inspect the architecture live</td></tr>
+        <tr><td><strong>Security</strong></td><td>API key is session-only, never persisted. No user data stored.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 11. RISKS -->
+  <div class="section">
+    <div class="section-label">Section 11</div>
+    <h2>Risks &amp; Mitigations</h2>
+    <div class="risk-wrap">
+      <div class="risk-row header">
+        <div>Risk</div><div>Likelihood</div><div>Impact</div><div>Mitigation</div>
+      </div>
+      <div class="risk-row">
+        <div>API rate limit hit during live demo</div>
+        <div><span class="pill pill-amber" style="font-size:11px;">Medium</span></div>
+        <div><span class="pill pill-red" style="font-size:11px;">High</span></div>
+        <div>Pre-run a warm-up call before demo; have cached outputs ready as fallback slides</div>
+      </div>
+      <div class="risk-row">
+        <div>Stage output format deviates from expected structure</div>
+        <div><span class="pill pill-amber" style="font-size:11px;">Medium</span></div>
+        <div><span class="pill pill-amber" style="font-size:11px;">Medium</span></div>
+        <div>Strict JSON output enforcement in prompts; fallback parser handles malformed responses</div>
+      </div>
+      <div class="risk-row">
+        <div>Internet connectivity failure at venue</div>
+        <div><span class="pill pill-green" style="font-size:11px;">Low</span></div>
+        <div><span class="pill pill-red" style="font-size:11px;">High</span></div>
+        <div>Pre-generated demo outputs saved as JSON; offline mode replays them on demand</div>
+      </div>
+      <div class="risk-row">
+        <div>Blog quality underwhelms for an unusual keyword</div>
+        <div><span class="pill pill-amber" style="font-size:11px;">Medium</span></div>
+        <div><span class="pill pill-amber" style="font-size:11px;">Medium</span></div>
+        <div>Prompt tuning ensures consistent structure regardless of topic; tested on 10+ keywords pre-demo</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 12. BUILD TIMELINE -->
+  <div class="section">
+    <div class="section-label">Section 12</div>
+    <h2>Build Timeline</h2>
+    <div class="timeline">
+      <div class="tl-row">
+        <span class="tl-tag pill-blue pill" style="font-size:11px;">Phase 1</span>
+        <div class="tl-content">
+          <div class="tl-title">Core Pipeline Build</div>
+          <div class="tl-desc">Build all 5 stage prompts, wire up Anthropic API calls, implement streaming output to UI. Basic layout with sidebar + main area.</div>
+        </div>
+      </div>
+      <div class="tl-row">
+        <span class="tl-tag pill-green pill" style="font-size:11px;">Phase 2</span>
+        <div class="tl-content">
+          <div class="tl-title">SEO Scorecard &amp; Prompt Viewer</div>
+          <div class="tl-desc">Build Stage 5 scorecard output, animated score bars, per-stage prompt inspector, and copy-to-clipboard for blog output.</div>
+        </div>
+      </div>
+      <div class="tl-row">
+        <span class="tl-tag pill-amber pill" style="font-size:11px;">Phase 3</span>
+        <div class="tl-content">
+          <div class="tl-title">UI Polish &amp; Error Handling</div>
+          <div class="tl-desc">Visual refinement, loading states, error boundaries, API key input, offline fallback mode using pre-cached demo data.</div>
+        </div>
+      </div>
+      <div class="tl-row">
+        <span class="tl-tag pill-purple pill" style="font-size:11px;">Phase 4</span>
+        <div class="tl-content">
+          <div class="tl-title">Testing &amp; Stress Test Prep</div>
+          <div class="tl-desc">Run 10+ keywords through the pipeline. Fix edge cases. Prepare talking points for each stage for the live presentation walkthrough.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 13. OUT OF SCOPE -->
+  <div class="section">
+    <div class="section-label">Section 13</div>
+    <h2>Out of Scope</h2>
+    <div class="callout callout-warn">
+      <strong>The following are explicitly excluded from this prototype</strong> and are acknowledged as real-world extensions beyond the hackathon timeframe:
+    </div>
+    <div class="pill-row" style="margin-top:12px;">
+      <span class="pill pill-neutral">Live SERP scraping (uses simulation)</span>
+      <span class="pill pill-neutral">Real SEMrush / Ahrefs API integration</span>
+      <span class="pill pill-neutral">User accounts or saved history</span>
+      <span class="pill pill-neutral">Direct publishing to blog platforms</span>
+      <span class="pill pill-neutral">Multi-language support</span>
+      <span class="pill pill-neutral">Image generation for blogs</span>
+      <span class="pill pill-neutral">Real-time competitor URL crawling</span>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="doc-footer">
+    <span>Blogy AI Blog Engine · PRD v1.0 · BizMark'26 · Prompt &amp; Profit Hackathon</span>
+    <span class="footer-brand">DTU Consulting Group × Blogy</span>
+  </div>
+
+</div>
+</body>
+</html>
