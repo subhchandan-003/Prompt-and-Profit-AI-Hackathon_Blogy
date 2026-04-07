@@ -1444,11 +1444,12 @@ function toggleTheme() {
   if (btn) btn.textContent = theme === 'dark' ? '☀️' : '🌙';
 })();
 
-// ── Auto-connect Anthropic on page load ──
+// ── Auto-connect from local config.js (if present) ──
 document.addEventListener('DOMContentLoaded', function() {
-  const AUTO_KEY = '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';
-  activeProvider = 'anthropic';
-  providerKeys.anthropic = AUTO_KEY;
-  selectedModels.anthropic = 'claude-sonnet-4-20250514';
-  updateHeaderProviderBadge();
+  if (typeof BLOGY_CONFIG !== 'undefined' && BLOGY_CONFIG.apiKey) {
+    activeProvider = BLOGY_CONFIG.provider || 'anthropic';
+    providerKeys[activeProvider] = BLOGY_CONFIG.apiKey;
+    selectedModels[activeProvider] = BLOGY_CONFIG.model || selectedModels[activeProvider];
+    updateHeaderProviderBadge();
+  }
 });
