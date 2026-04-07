@@ -1443,3 +1443,12 @@ function toggleTheme() {
   const btn = document.getElementById('themeToggle');
   if (btn) btn.textContent = theme === 'dark' ? '☀️' : '🌙';
 })();
+
+// ── Auto-connect Anthropic on page load ──
+document.addEventListener('DOMContentLoaded', function() {
+  const AUTO_KEY = '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';
+  activeProvider = 'anthropic';
+  providerKeys.anthropic = AUTO_KEY;
+  selectedModels.anthropic = 'claude-sonnet-4-20250514';
+  updateHeaderProviderBadge();
+});
